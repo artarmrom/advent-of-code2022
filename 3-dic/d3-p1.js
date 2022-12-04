@@ -309,7 +309,7 @@ ttgJtRGJQctTZtZT
 CrZsJsPPZsGzwwsLwLmpwMDw`
 
 const rucksacks = input.split('\n');
-const items = rucksacks.map((rucksack) => rucksack.slice(0,rucksack.length/2).split('').filter((item) => rucksack.slice(rucksack.length/2,rucksack.length).split('').includes(item)).splice(0,1)).flat(1)
+const items = rucksacks.map((rucksack) => rucksack.slice(0,rucksack.length/2).split('').find((item) => rucksack.slice(rucksack.length/2,rucksack.length).split('').includes(item)))
 const priotities = items.map((item)=>item === item.toLowerCase()?item.charCodeAt(0)-96:item.charCodeAt(0)-38).reduce((a,b)=>a+b,0)
 
 console.log(priotities)
