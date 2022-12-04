@@ -308,8 +308,23 @@ wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
 ttgJtRGJQctTZtZT
 CrZsJsPPZsGzwwsLwLmpwMDw`
 
+const GROUP_SIZE = 3;
+
 const rucksacks = input.split('\n');
-const items = rucksacks.map((rucksack) => rucksack.slice(0,rucksack.length/2).split('').filter((item) => rucksack.slice(rucksack.length/2,rucksack.length).split('').includes(item)).splice(0,1)).flat(1)
+const groups = [];
+for(let i=0;i<rucksacks.length;i+=GROUP_SIZE){
+    groups.push(rucksacks.slice(i,i+GROUP_SIZE));
+}
+
+const items = groups.map((group) => {
+    let items = []
+    for(let i=0; i<group.length-1;i++){
+        const filterGroup = i==0?group[i].split(''):items;
+        items = filterGroup.filter((item) => group[i+1].split('').includes(item))
+    }
+    return items.splice(0,1)
+}).flat(1)
+
 const priotities = items.map((item)=>item === item.toLowerCase()?item.charCodeAt(0)-96:item.charCodeAt(0)-38).reduce((a,b)=>a+b,0)
 
 console.log(priotities)
