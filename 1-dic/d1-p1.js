@@ -2248,6 +2248,21 @@ const input =
 1303
 5054`
 
+const testInput = `1000
+2000
+3000
+
+4000
+
+5000
+6000
+
+7000
+8000
+9000
+
+10000`
+
 const caloriesArray = input.split('\n\n');
 const sumCalories = caloriesArray.map((calories) => calories.split('\n').reduce((a,b) => parseInt(a)+parseInt(b),0));
 const elfWinner = Math.max(...sumCalories)
