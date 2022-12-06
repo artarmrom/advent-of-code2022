@@ -545,7 +545,7 @@ blocks.map((block, blockIndex) => block.replace(/\s{4}/g, '-').match(blockRegex)
 const moves = parseInput[1].split('\n').map((move) => move.match(numRegex))
 
 moves.map((move)=>{
-    const crate = crates[move[1]].splice(crates[move[1]].length-move[0],move[0]).reverse()
+    const crate = crates[move[1]].splice(crates[move[1]].length-move[0],move[0])
     crates[move[2]] = crates[move[2]].concat(crate)
 })
 
