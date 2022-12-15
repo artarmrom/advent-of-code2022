@@ -2009,25 +2009,40 @@ D 1
 L 5
 R 2`
 
+const testInputLarge = 
+`R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20`
+
+const KNOTS = 10
 let headMap = [['H']]
-let tailMap = [['T']]
-let headCoord = {row: 0, col: 0}
-let tailCoord = {row: 0, col: 0}
+let bodyMap = [['1']]
+let tailMap = [['9']]
+let mapCoord = Array.from({length: KNOTS}, () => ({row: 0, col: 0}))
 
 function createRowUp(rowLong){
     headMap.unshift(Array.from('.'.repeat(rowLong)))
+    bodyMap.unshift(Array.from('.'.repeat(rowLong)))
     tailMap.unshift(Array.from('.'.repeat(rowLong)))
 }
 function createRowDown(rowLong){
     headMap.push(Array.from('.'.repeat(rowLong)))
+    bodyMap.push(Array.from('.'.repeat(rowLong)))
     tailMap.push(Array.from('.'.repeat(rowLong)))
 }
 function createColumnLeft(){
     headMap.map((row)=>row.unshift('.'))
+    bodyMap.map((row)=>row.unshift('.'))
     tailMap.map((row)=>row.unshift('.'))
 }
 function createColumnRight(){
     headMap.map((row)=>row.push('.'))
+    bodyMap.map((row)=>row.push('.'))
     tailMap.map((row)=>row.push('.'))
 }
 
@@ -2035,7 +2050,9 @@ function moveUp(map, coord, part, mark){
     map[coord.row][coord.col]=mark
     if(map[coord.row-1]===undefined){
         createRowUp(map[coord.row].length)
-        tailCoord.row=tailCoord.row+1
+        for(i=1;i<=mapCoord.length-1;i++){
+            mapCoord[i].row=mapCoord[i].row+1
+        }
     }else{
         coord.row=coord.row-1
     }
@@ -2052,7 +2069,9 @@ function moveLeft(map, coord, part, mark){
     map[coord.row][coord.col]=mark
     if(map[coord.row][coord.col-1]===undefined){
         createColumnLeft()
-        tailCoord.col=tailCoord.col+1
+        for(i=1;i<=mapCoord.length-1;i++){
+            mapCoord[i].col=mapCoord[i].col+1
+        }
     }else{
         coord.col=coord.col-1
     }
@@ -2072,34 +2091,29 @@ function moveDiagonal(map, coord, row, col, part, mark){
     map[row][col]=part
 }
 function move(direction, steps){
-    for(i=0;i<steps;i++){
+    for(j=0;j<steps;j++){
         if(direction === 'U'){
-            moveUp(headMap, headCoord, 'H', '.')
-            if(headCoord.col === tailCoord.col && Math.abs(headCoord.row-tailCoord.row)>1){
-                moveUp(tailMap, tailCoord, 'T', '#')
-            }else if(Math.abs(headCoord.row-tailCoord.row)>1 || Math.abs(headCoord.col-tailCoord.col)>1){
-                moveDiagonal(tailMap, tailCoord, headCoord.row+1, headCoord.col, 'T', '#')
-            }
+            moveUp(headMap, mapCoord[0], 'H', '.')
         }else if(direction === 'D'){
-            moveDown(headMap, headCoord, 'H', '.')
-            if(headCoord.col === tailCoord.col && Math.abs(headCoord.row-tailCoord.row)>1){
-                moveDown(tailMap, tailCoord, 'T', '#')
-            }else if(Math.abs(headCoord.row-tailCoord.row)>1 || Math.abs(headCoord.col-tailCoord.col)>1){
-                moveDiagonal(tailMap, tailCoord, headCoord.row-1, headCoord.col, 'T', '#')
-            }
+            moveDown(headMap, mapCoord[0], 'H', '.')
         }else if(direction === 'L'){
-            moveLeft(headMap, headCoord, 'H', '.')
-            if(headCoord.row === tailCoord.row && Math.abs(headCoord.col-tailCoord.col)>1){
-                moveLeft(tailMap, tailCoord, 'T', '#')
-            }else if(Math.abs(headCoord.row-tailCoord.row)>1 || Math.abs(headCoord.col-tailCoord.col)>1){
-                moveDiagonal(tailMap, tailCoord, headCoord.row, headCoord.col+1, 'T', '#')
-            }
+            moveLeft(headMap, mapCoord[0], 'H', '.')
         }else if(direction === 'R'){
-            moveRight(headMap, headCoord, 'H', '.')
-            if(headCoord.row === tailCoord.row && Math.abs(headCoord.col-tailCoord.col)>1){
-                moveRight(tailMap, tailCoord, 'T', '#')
-            }else if(Math.abs(headCoord.row-tailCoord.row)>1 || Math.abs(headCoord.col-tailCoord.col)>1){
-                moveDiagonal(tailMap, tailCoord, headCoord.row, headCoord.col-1, 'T', '#')
+            moveRight(headMap, mapCoord[0], 'H', '.')
+        }
+        for(i=1;i<=mapCoord.length-1;i++){
+            if(mapCoord[i-1].col === mapCoord[i].col && mapCoord[i-1].row-mapCoord[i].row<-1){
+                moveUp(i===9?tailMap:bodyMap, mapCoord[i], String(i), i===9?'#':'.')
+            }else if(mapCoord[i-1].col === mapCoord[i].col && mapCoord[i-1].row-mapCoord[i].row>1){
+                moveDown(i===9?tailMap:bodyMap, mapCoord[i], String(i), i===9?'#':'.')
+            }else if(mapCoord[i-1].row === mapCoord[i].row && mapCoord[i-1].col-mapCoord[i].col<-1){
+                moveLeft(i===9?tailMap:bodyMap, mapCoord[i], String(i), i===9?'#':'.')
+            }else if(mapCoord[i-1].row === mapCoord[i].row && mapCoord[i-1].col-mapCoord[i].col>1){
+                moveRight(i===9?tailMap:bodyMap, mapCoord[i], String(i), i===9?'#':'.')
+            }else if(Math.abs(mapCoord[i-1].row-mapCoord[i].row)>1){
+                moveDiagonal(i===9?tailMap:bodyMap, mapCoord[i], mapCoord[i].row+Math.sign(mapCoord[i-1].row-mapCoord[i].row), mapCoord[i].col+Math.sign(mapCoord[i-1].col-mapCoord[i].col), String(i), i===9?'#':'.')
+            }else if(Math.abs(mapCoord[i-1].col-mapCoord[i].col)>1){
+                moveDiagonal(i===9?tailMap:bodyMap, mapCoord[i], mapCoord[i-1].row, mapCoord[i].col+Math.sign(mapCoord[i-1].col-mapCoord[i].col), String(i), i===9?'#':'.')
             }
         }
     }
@@ -2113,6 +2127,6 @@ motions.map((motion)=>{
     move(direction, steps)
 })
 
-const numPositions = tailMap.flat(1).filter((pos) => pos !== '.').length
+const numPositions = tailMap.flat(1).filter((pos) => pos === '9' || pos === '#').length
 
 console.log(numPositions)
